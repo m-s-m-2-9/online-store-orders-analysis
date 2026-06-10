@@ -111,12 +111,14 @@ if df is not None:
         kpi2.metric("System Transaction Volume", f"{total_orders:,} Operational Actions")
         kpi3.metric("Calculated Average Order Value (AOV)", f"{currency_symbol}{aov:,.2f}")
         
-              # Inter-Workspace Reporting Dashboard Navigation Interface
+                 # Inter-Workspace Reporting Dashboard Navigation Interface
         st.markdown("### Interactive Graphical Evaluation Control Workspace")
-        plot_tabs = st.tabs(["Bar Chart Matrix", "Pie Distribution", "Trend Line Tracker", "Distribution Histogram", "Variable Scatter Map"])
+        t_bar, t_pie, t_trend, t_hist, t_scatter = st.tabs([
+            "Bar Chart Matrix", "Pie Distribution", "Trend Line Tracker", "Distribution Histogram", "Variable Scatter Map"
+        ])
         
         # --- TAB 1: INTERACTIVE BAR CHART MATRIX ---
-        with plot_tabs[0]:
+        with t_bar:
             st.markdown("#### Volumetric Revenue Contributions by Operating Channel")
             platform_summary = df.groupby([plat_col, day_col])[val_col].sum().reset_index()
             fig_bar = px.bar(
@@ -128,7 +130,7 @@ if df is not None:
             st.plotly_chart(fig_bar, use_container_width=True)
             
         # --- TAB 2: INCENTIVE OPTIMIZATION PIE MATRIX ---
-        with plot_tabs[1]:
+        with t_pie:
             if disc_col:
                 st.markdown("#### System Marketing Incentive Yield Share Optimization")
                 df[disc_col] = df[disc_col].astype(str).str.lower().replace({'1': 'yes', 'true': 'yes', 'applied': 'yes'})
@@ -144,7 +146,7 @@ if df is not None:
                 st.info("Incentive field variables missing from source parameters.")
 
         # --- TAB 3: AUTOMATED LINE CHARTS & PREDICTIVE FORECASTING ---
-        with plot_tabs[2]:
+        with t_trend:
             st.markdown("#### Longitudinal Metric Performance Trends and Statistical Forecast Projections")
             trend_data = df.groupby(day_col)[val_col].sum().reset_index()
             if len(trend_data) > 1:
@@ -165,10 +167,10 @@ if df is not None:
                 )
                 st.plotly_chart(fig_line, use_container_width=True)
             else:
-                st.info("Insufficient longitudinal series points to calculate statistical regressions.")
+                st.info("Insufficient timeline tracking points found. Ensure multiple distinct values exist under the 'Operational Day' parameters to extrapolate regressions.")
 
         # --- TAB 4: DISTRIBUTION HISTOGRAM SYSTEM ---
-        with plot_tabs[3]:
+        with t_hist:
             st.markdown("#### System Transaction Order Matrix Sizing Densities")
             fig_hist = px.histogram(
                 df, x=val_col, nbins=20, color=plat_col,
@@ -177,8 +179,8 @@ if df is not None:
             )
             st.plotly_chart(fig_hist, use_container_width=True)
 
-             # --- TAB 5: OPERATIONAL SCATTER SPATIAL VECTOR MAP ---
-        with plot_tabs[4]:
+        # --- TAB 5: OPERATIONAL SCATTER SPATIAL VECTOR MAP ---
+        with t_scatter:
             st.markdown("#### Dimensional Variance Analysis Vector Matrix Space")
             fig_scatter = px.scatter(
                 df, x=day_col, y=val_col, color=plat_col, size=val_col,
