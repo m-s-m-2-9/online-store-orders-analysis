@@ -111,7 +111,7 @@ if df is not None:
         kpi2.metric("System Transaction Volume", f"{total_orders:,} Operational Actions")
         kpi3.metric("Calculated Average Order Value (AOV)", f"{currency_symbol}{aov:,.2f}")
         
-        # Inter-Workspace Reporting Dashboard Navigation Interface
+              # Inter-Workspace Reporting Dashboard Navigation Interface
         st.markdown("### Interactive Graphical Evaluation Control Workspace")
         plot_tabs = st.tabs(["Bar Chart Matrix", "Pie Distribution", "Trend Line Tracker", "Distribution Histogram", "Variable Scatter Map"])
         
@@ -143,12 +143,10 @@ if df is not None:
             else:
                 st.info("Incentive field variables missing from source parameters.")
 
-        # --- TAB 3: AUTOMATED LINE CHARTS & PREDICTIVE FORECASTING (Upgrade 2) ---
+        # --- TAB 3: AUTOMATED LINE CHARTS & PREDICTIVE FORECASTING ---
         with plot_tabs[2]:
             st.markdown("#### Longitudinal Metric Performance Trends and Statistical Forecast Projections")
             trend_data = df.groupby(day_col)[val_col].sum().reset_index()
-            
-            # Linear trend extrapolation regression modeling mock engine execution
             if len(trend_data) > 1:
                 x = trend_data[day_col].values
                 y = trend_data[val_col].values
@@ -167,7 +165,7 @@ if df is not None:
                 )
                 st.plotly_chart(fig_line, use_container_width=True)
             else:
-                st.info("Insufficient longitudinal series points to calculate statistical regressions. Provide broader historical records.")
+                st.info("Insufficient longitudinal series points to calculate statistical regressions.")
 
         # --- TAB 4: DISTRIBUTION HISTOGRAM SYSTEM ---
         with plot_tabs[3]:
@@ -179,11 +177,12 @@ if df is not None:
             )
             st.plotly_chart(fig_hist, use_container_width=True)
 
-        # --- TAB 5: OPERATIONAL SCATTER SPATIAL VECTOR MAP ---
+             # --- TAB 5: OPERATIONAL SCATTER SPATIAL VECTOR MAP ---
         with plot_tabs[4]:
             st.markdown("#### Dimensional Variance Analysis Vector Matrix Space")
             fig_scatter = px.scatter(
                 df, x=day_col, y=val_col, color=plat_col, size=val_col,
-Use code with caution.labels={day_col: "Temporal Day Axis", val_col: f"Revenue Coordinates ({currency_selection})"},template="plotly_white")st.plotly_chart(fig_scatter, use_container_width=True)
-# --- EXECUTIVE DOWNLOAD MANAGEMENT CONSOLE (Upgrade 5) ---st.markdown("---")st.subheader("Corporate Export Controls Gateway")# Build out direct report text compilation pipeline data blockssummary_payload = f"""==================================================EXECUTIVE INTELLIGENCE MANAGEMENT BRIEFReporting Run Currency Metric Space: {currency_selection}Total System Transactions Compiled:
-# {total_orders}Aggregated Enterprise Gross Capital Yield: {total_rev:,.2f}Operational Unit Processing Efficiency Average (AOV): {aov:,.2f}=================================================="""st.download_button(label="Compile and Download Executive Analytical Summary Document",data=summary_payload,file_name="executive_intelligence_brief.txt",mime="text/plain")else:st.error("Structure Error: Unable to extract required analytics fields. Re-verify document layout maps correctly.")else:st.info("System awaiting infrastructure payload execution. Deliver data matrices using upload grids or register specific line transactions.")
+                labels={day_col: "Temporal Day Axis", val_col: f"Revenue Coordinates ({currency_selection})"},
+                template="plotly_white"
+            )
+            st.plotly_chart(fig_scatter, use_container_width=True)
