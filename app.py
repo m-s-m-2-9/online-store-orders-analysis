@@ -4,10 +4,8 @@ import plotly.express as px
 import numpy as np
 
 # Configure enterprise page parameters
-st.set_page_config(
-    page_title="Q-Commerce Performance Analytics Suite", 
-    layout="wide", 
-    initial_sidebar_state="collapsed"
+st.set_page_config(page_title="Q-Commerce Performance Analytics Suite", layout="wide", initial_sidebar_state="collapsed")
+
 
 
 # Custom Corporate CSS Theme Engine (Upgrade 4)
