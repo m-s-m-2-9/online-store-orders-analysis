@@ -3,12 +3,13 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-# Configure enterprise page parameters
-st.set_page_config(page_title="Q-Commerce Performance Analytics Suite", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(
+    page_title="Q-Commerce Analytics Suite", 
+    layout="wide", 
+    initial_sidebar_state="collapsed"
+)
 
-
-
-# Custom Corporate CSS Theme Engine (Upgrade 4)
+# Custom Corporate Style Sheet Injection
 st.markdown("""
 <style>
     .reportview-container { background: #0e1117; color: #ffffff; }
@@ -17,34 +18,27 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Application Header and Context
 st.title("Quick Commerce Business Intelligence Dashboard")
 st.markdown("""
 This analytics framework provides data aggregation, predictive forecasting, and interactive 
 business performance visualization for hyper-local fulfillment applications.
 """)
 
-# Currency API Engine Configuration Framework (Upgrade 3)
 st.sidebar.subheader("Localization Controls")
-currency_selection = st.sidebar.selectbox("Reporting Currency Baseline", ["INR", "USD", "EUR", "AED"])
-currency_rates = {"INR": 1.0, "USD": 0.012, "EUR": 0.011, "AED": 0.044}
-conversion_factor = currency_rates[currency_selection]
-currency_symbol = "₹" if currency_selection == "INR" else "$" if currency_selection == "USD" else "€" if currency_selection == "EUR" else "AED "
+currency = st.sidebar.selectbox("Reporting Currency Baseline", ["INR", "USD", "EUR", "AED"])
+rates = {"INR": 1.0, "USD": 0.012, "EUR": 0.011, "AED": 0.044}
+fx_factor = rates[currency]
+currency_symbol = "₹" if currency == "INR" else "$" if currency == "USD" else "€" if currency == "EUR" else "AED "
 
-# Persistent Data Storage Middleware (Upgrade 1)
-# Seamlessly intercepts local storage data structures to prevent state drops on page refreshes
-if 'cloud_database_mock' not in st.session_state:
-    st.session_state.cloud_database_mock = pd.DataFrame(columns=['Platform', 'Order_Value', 'Discount', 'Operational_Day'])
+# State initialization for active session tracker
+if 'orders_db' not in st.session_state:
+    st.session_state.orders_db = pd.DataFrame(columns=['Platform', 'Order_Value', 'Discount', 'Operational_Day'])
 
-# Operational Workspace Segmentation
-tab1, tab2 = st.tabs(["Bulk Data Processing Engine", "Granular Transaction Ingestion Log"])
+t_bulk, t_manual = st.tabs(["Bulk Data Processing Engine", "Granular Transaction Ingestion Log"])
 df = None
 
-# --- SECTION 1: BULK DATA INGESTION ---
-with tab1:
+with t_bulk:
     st.subheader("Automated Dataset Parsing Matrix")
-    
-    # Structural documentation schema for user guidance
     st.markdown("""
     **Required CSV Layout Template:**
     Your uploaded file must contain the following column headers and data formats:
@@ -56,38 +50,43 @@ with tab1:
     | Swiggy Instamart | 890.00 | Yes | 2 |
     """)
     
-    uploaded_file = st.file_uploader(
+    src_file = st.file_uploader(
         "Select target store transaction ledger (.csv format)", 
         type=["csv"],
         help="Ensure the source dataset contains categorical platform and numeric order value parameters."
     )
+    if src_file is not None:
+        df = pd.read_csv(src_file)
+        st.success("Dataset successfully ingested and parsed from active volume storage.")
 
-# --- SECTION 2: TRANSACTION ENTRY CONTROL ---
-with tab2:
+with t_manual:
     st.subheader("Granular Transaction Ledger Administration")
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        input_app = st.selectbox("Fulfillment Platform", ["Blinkit", "Swiggy Instamart", "Zepto", "BigBasket", "Other"])
-    with col2:
-        input_val = st.number_input("Gross Order Value (INR Basis)", min_value=0.0, step=50.0, value=250.0)
-    with col3:
-        input_disc = st.selectbox("Marketing Incentive Applied", ["Yes", "No"])
-    with col4:
-        input_day = st.slider("Operational Time Index (Day Count)", min_value=1, max_value=30, value=1)
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        inp_platform = st.selectbox("Fulfillment Platform", ["Blinkit", "Swiggy Instamart", "Zepto", "BigBasket", "Other"])
+    with c2:
+        inp_value = st.number_input("Gross Order Value (INR Basis)", min_value=0.0, step=50.0, value=250.0)
+    with c3:
+        inp_discount = st.selectbox("Marketing Incentive Applied", ["Yes", "No"])
+    with c4:
+        inp_day = st.slider("Operational Time Index (Day Count)", min_value=1, max_value=30, value=1)
         
     if st.button("Commit Record to Distributed Ledger"):
-        new_row = pd.DataFrame([{'Platform': input_app, 'Order_Value': input_val, 'Discount': input_disc, 'Operational_Day': input_day}])
-        st.session_state.cloud_database_mock = pd.concat([st.session_state.cloud_database_mock, new_row], ignore_index=True)
+        new_entry = pd.DataFrame([{'Platform': inp_platform, 'Order_Value': inp_value, 'Discount': inp_discount, 'Operational_Day': inp_day}])
+        st.session_state.orders_db = pd.concat([st.session_state.orders_db, new_entry], ignore_index=True)
         st.toast("Transaction successfully compiled to persistent session stream storage.")
         
-    if not st.session_state.cloud_database_mock.empty:
+    if not st.session_state.orders_db.empty:
         st.markdown("**Active Secure Data Vault Transactions**")
-        st.dataframe(st.session_state.cloud_database_mock, use_container_width=True)
+        st.dataframe(st.session_state.orders_db, use_container_width=True)
         if df is None:  
-            df = st.session_state.cloud_database_mock.copy()
+            df = st.session_state.orders_db.copy()
             df.columns = ['company', 'order_value', 'discount_applied', 'operational_day']
 
-# --- SECTION 3: CORE QUANTITATIVE METRICS & VISUALIZATIONS ---
+
+
+
+
 if df is not None:
     df.columns = [c.lower().strip() for c in df.columns]
     val_col = next((c for c in df.columns if c in ['order_value', 'amount', 'total_price', 'price', 'sales']), None)
@@ -96,10 +95,8 @@ if df is not None:
     day_col = next((c for c in df.columns if c in ['operational_day', 'day', 'time', 'date']), None)
     
     if val_col and plat_col:
-        # Currency baseline synchronization conversion run
-        df[val_col] = pd.to_numeric(df[val_col], errors='coerce').fillna(0) * conversion_factor
+        df[val_col] = pd.to_numeric(df[val_col], errors='coerce').fillna(0) * fx_factor
         
-        # Ensure a runtime time tracking vector exists for animated components
         if not day_col:
             df['operational_day'] = np.random.randint(1, 10, size=len(df))
             day_col = 'operational_day'
@@ -111,90 +108,106 @@ if df is not None:
         st.markdown("---")
         st.subheader("Key Performance Indicators Summary Matrix")
         
-        # Analytics Aggregation Engine Runs
-        total_rev = df[val_col].sum()
-        total_orders = len(df)
-        aov = total_rev / total_orders if total_orders > 0 else 0
+        rev_total = df[val_col].sum()
+        orders_total = len(df)
+        aov_metric = rev_total / orders_total if orders_total > 0 else 0
         
-        kpi1, kpi2, kpi3 = st.columns(3)
-        kpi1.metric("Gross Reporting Revenue Volume", f"{currency_symbol}{total_rev:,.2f}")
-        kpi2.metric("System Transaction Volume", f"{total_orders:,} Operational Actions")
-        kpi3.metric("Calculated Average Order Value (AOV)", f"{currency_symbol}{aov:,.2f}")
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Gross Reporting Revenue Volume", f"{currency_symbol}{rev_total:,.2f}")
+        m2.metric("System Transaction Volume", f"{orders_total:,} Operational Actions")
+        m3.metric("Calculated Average Order Value (AOV)", f"{currency_symbol}{aov_metric:,.2f}")
         
-                 # Inter-Workspace Reporting Dashboard Navigation Interface
         st.markdown("### Interactive Graphical Evaluation Control Workspace")
         t_bar, t_pie, t_trend, t_hist, t_scatter = st.tabs([
             "Bar Chart Matrix", "Pie Distribution", "Trend Line Tracker", "Distribution Histogram", "Variable Scatter Map"
         ])
         
-        # --- TAB 1: INTERACTIVE BAR CHART MATRIX ---
         with t_bar:
             st.markdown("#### Volumetric Revenue Contributions by Operating Channel")
-            platform_summary = df.groupby([plat_col, day_col])[val_col].sum().reset_index()
+            grp_platform = df.groupby([plat_col, day_col])[val_col].sum().reset_index()
             fig_bar = px.bar(
-                platform_summary, x=plat_col, y=val_col, color=plat_col,
-                animation_frame=day_col, range_y=[0, platform_summary[val_col].max() * 1.2],
-                labels={plat_col: "Operating Channel", val_col: f"Gross Revenue ({currency_selection})"},
+                grp_platform, x=plat_col, y=val_col, color=plat_col,
+                animation_frame=day_col, range_y=[0, grp_platform[val_col].max() * 1.2],
+                labels={plat_col: "Operating Channel", val_col: f"Gross Revenue ({currency})"},
                 template="plotly_white"
             )
             st.plotly_chart(fig_bar, use_container_width=True)
             
-        # --- TAB 2: INCENTIVE OPTIMIZATION PIE MATRIX ---
         with t_pie:
             if disc_col:
                 st.markdown("#### System Marketing Incentive Yield Share Optimization")
                 df[disc_col] = df[disc_col].astype(str).str.lower().replace({'1': 'yes', 'true': 'yes', 'applied': 'yes'})
                 df['Promo Status'] = df[disc_col].apply(lambda x: 'Incentivized Order' if 'yes' in x or 'y' in x else 'Organic Full-Price')
                 
-                discount_summary = df.groupby('Promo Status')[val_col].sum().reset_index()
+                grp_discount = df.groupby('Promo Status')[val_col].sum().reset_index()
                 fig_pie = px.pie(
-                    discount_summary, values=val_col, names='Promo Status', 
+                    grp_discount, values=val_col, names='Promo Status', 
                     color_discrete_sequence=px.colors.sequential.Plotly3, hole=0.4
                 )
                 st.plotly_chart(fig_pie, use_container_width=True)
             else:
                 st.info("Incentive field variables missing from source parameters.")
 
-        # --- TAB 3: AUTOMATED LINE CHARTS & PREDICTIVE FORECASTING ---
         with t_trend:
             st.markdown("#### Longitudinal Metric Performance Trends and Statistical Forecast Projections")
-            trend_data = df.groupby(day_col)[val_col].sum().reset_index()
-            if len(trend_data) > 1:
-                x = trend_data[day_col].values
-                y = trend_data[val_col].values
+            grp_trend = df.groupby(day_col)[val_col].sum().reset_index()
+            if len(grp_trend) > 1:
+                x = grp_trend[day_col].values
+                y = grp_trend[val_col].values
                 slope, intercept = np.polyfit(x, y, 1)
-                future_days = np.array(list(range(int(max(x)) + 1, int(max(x)) + 6)))
-                future_forecast = slope * future_days + intercept
+                forecast_steps = np.array(list(range(int(max(x)) + 1, int(max(x)) + 6)))
+                forecast_vals = slope * forecast_steps + intercept
                 
-                historical_df = pd.DataFrame({day_col: x, 'Revenue Baseline': y, 'Data Type': 'Historical Matrix'})
-                forecast_df = pd.DataFrame({day_col: future_days, 'Revenue Baseline': future_forecast, 'Data Type': 'Statistical Forecast Model'})
-                unified_trend = pd.concat([historical_df, forecast_df], ignore_index=True)
+                hist_data = pd.DataFrame({day_col: x, 'Revenue Baseline': y, 'Data Type': 'Historical Matrix'})
+                pred_data = pd.DataFrame({day_col: forecast_steps, 'Revenue Baseline': forecast_vals, 'Data Type': 'Statistical Forecast Model'})
+                unified_trend = pd.concat([hist_data, pred_data], ignore_index=True)
                 
                 fig_line = px.line(
                     unified_trend, x=day_col, y='Revenue Baseline', color='Data Type',
-                    line_dash='Data Type', labels={day_col: "Operational Day Index", 'Revenue Baseline': f"Value Volume ({currency_selection})"},
+                    line_dash='Data Type', labels={day_col: "Operational Day Index", 'Revenue Baseline': f"Value Volume ({currency})"},
                     template="plotly_white"
                 )
                 st.plotly_chart(fig_line, use_container_width=True)
             else:
                 st.info("Insufficient timeline tracking points found. Ensure multiple distinct values exist under the 'Operational Day' parameters to extrapolate regressions.")
 
-        # --- TAB 4: DISTRIBUTION HISTOGRAM SYSTEM ---
         with t_hist:
             st.markdown("#### System Transaction Order Matrix Sizing Densities")
             fig_hist = px.histogram(
                 df, x=val_col, nbins=20, color=plat_col,
-                labels={val_col: f"Transaction Value Boundaries ({currency_selection})"},
+                labels={val_col: f"Transaction Value Boundaries ({currency})"},
                 template="plotly_white", barmode="overlay"
             )
             st.plotly_chart(fig_hist, use_container_width=True)
 
-        # --- TAB 5: OPERATIONAL SCATTER SPATIAL VECTOR MAP ---
         with t_scatter:
             st.markdown("#### Dimensional Variance Analysis Vector Matrix Space")
             fig_scatter = px.scatter(
                 df, x=day_col, y=val_col, color=plat_col, size=val_col,
-                labels={day_col: "Temporal Day Axis", val_col: f"Revenue Coordinates ({currency_selection})"},
+                labels={day_col: "Temporal Day Axis", val_col: f"Revenue Coordinates ({currency})"},
                 template="plotly_white"
             )
             st.plotly_chart(fig_scatter, use_container_width=True)
+
+        st.markdown("---")
+        st.subheader("Corporate Export Controls Gateway")
+        
+        brief_text = f"""==================================================
+      EXECUTIVE INTELLIGENCE MANAGEMENT BRIEF
+==================================================
+Reporting Run Currency Metric Space: {currency}
+Total System Transactions Compiled: {orders_total}
+Aggregated Enterprise Gross Capital Yield: {rev_total:,.2f}
+Operational Unit Processing Efficiency Average (AOV): {aov_metric:,.2f}
+=================================================="""
+        
+        st.download_button(
+            label="Compile and Download Executive Analytical Summary Document",
+            data=brief_text,
+            file_name="executive_intelligence_brief.txt",
+            mime="text/plain"
+        )
+    else:
+        st.error("Structure Error: Unable to extract required analytics fields. Re-verify document layout maps correctly.")
+else:
+    st.info("System awaiting infrastructure payload execution. Deliver data matrices using upload grids or register specific line transactions.")
