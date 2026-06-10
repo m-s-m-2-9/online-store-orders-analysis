@@ -63,18 +63,30 @@ with t_manual:
     st.subheader("Granular Transaction Ledger Administration")
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        inp_platform = st.selectbox("Fulfillment Platform", ["Blinkit", "Swiggy Instamart", "Zepto", "BigBasket", "Other"])
+        selected_platform = st.selectbox("Fulfillment Platform", ["Blinkit", "Swiggy Instamart", "Zepto", "BigBasket", "Other"])
+        
+        # Dynamically inject custom text input if 'Other' is picked
+        if selected_platform == "Other":
+            inp_platform = st.text_input("Specify Platform Name", value="Custom App").strip()
+        else:
+            inp_platform = selected_platform
+            
     with c2:
-        inp_value = st.number_input("Gross Order Value (INR Basis)", min_value=0.0, step=50.0, value=250.0)
+        # Changed step value to 1.0 to resolve your browser validation roadblock
+        inp_value = st.number_input("Gross Order Value (INR Basis)", min_value=0.0, step=1.0, value=250.0)
     with c3:
         inp_discount = st.selectbox("Marketing Incentive Applied", ["Yes", "No"])
     with c4:
         inp_day = st.slider("Operational Time Index (Day Count)", min_value=1, max_value=30, value=1)
         
     if st.button("Commit Record to Distributed Ledger"):
-        new_entry = pd.DataFrame([{'Platform': inp_platform, 'Order_Value': inp_value, 'Discount': inp_discount, 'Operational_Day': inp_day}])
-        st.session_state.orders_db = pd.concat([st.session_state.orders_db, new_entry], ignore_index=True)
-        st.toast("Transaction successfully compiled to persistent session stream storage.")
+        # Prevent logging blank custom platform strings
+        if not inp_platform:
+            st.error("Validation Error: Custom platform name field cannot be empty.")
+        else:
+            new_entry = pd.DataFrame([{'Platform': inp_platform, 'Order_Value': inp_value, 'Discount': inp_discount, 'Operational_Day': inp_day}])
+            st.session_state.orders_db = pd.concat([st.session_state.orders_db, new_entry], ignore_index=True)
+            st.toast("Transaction successfully compiled to persistent session stream storage.")
         
     if not st.session_state.orders_db.empty:
         st.markdown("**Active Secure Data Vault Transactions**")
