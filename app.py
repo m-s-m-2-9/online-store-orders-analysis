@@ -1,9 +1,6 @@
-import streamlit as sns
 import streamlit as st
 import pandas as pd
-import plotly.express
-
- as px
+import plotly.express as px
 
 # Set up clean professional page layout
 st.set_page_config(page_title="Q-Commerce Analytics Dashboard", layout="wide")
