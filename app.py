@@ -43,14 +43,24 @@ df = None
 # --- SECTION 1: BULK DATA INGESTION ---
 with tab1:
     st.subheader("Automated Dataset Parsing Matrix")
+    
+    # Structural documentation schema for user guidance
+    st.markdown("""
+    **Required CSV Layout Template:**
+    Your uploaded file must contain the following column headers and data formats:
+    
+    | Company | Order_Value | Discount_Applied | Operational_Day |
+    | :--- | :--- | :--- | :--- |
+    | Blinkit | 450.00 | Yes | 1 |
+    | Zepto | 210.50 | No | 1 |
+    | Swiggy Instamart | 890.00 | Yes | 2 |
+    """)
+    
     uploaded_file = st.file_uploader(
         "Select target store transaction ledger (.csv format)", 
         type=["csv"],
         help="Ensure the source dataset contains categorical platform and numeric order value parameters."
     )
-    if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
-        st.success("Dataset successfully ingested and parsed from active volume storage.")
 
 # --- SECTION 2: TRANSACTION ENTRY CONTROL ---
 with tab2:
